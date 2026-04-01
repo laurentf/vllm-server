@@ -1,7 +1,7 @@
 FROM vllm/vllm-openai:v0.18.0
 
 # Install git (pip needs it for GitHub installs) + vllm-omni + RunPod SDK
-RUN apt-get update && apt-get install -y --no-install-recommends git \
+RUN apt-get update && apt-get install -y --no-install-recommends git sox libsox-dev \
     && rm -rf /var/lib/apt/lists/* \
     && pip install --no-cache-dir \
         git+https://github.com/vllm-project/vllm-omni.git \
@@ -11,10 +11,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends git \
 # Copy handler (RunPod serverless) + entrypoint (standalone Docker)
 COPY handler.py /handler.py
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
+RUN sed -i 's/\r$//' /entrypoint.sh && chmod +x /entrypoint.sh
 
 ENV HF_HOME=/root/.cache/huggingface
-ENV VOXTRAL_MODEL=mistralai/Voxtral-4B-TTS-2603
 
 EXPOSE 8000
 
